@@ -1,1 +1,3 @@
 Tartu,EE
+Tallinn,EE
+Madrid,ES

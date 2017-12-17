@@ -1,15 +1,36 @@
-group 'weatherAPI'
-version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+    }
+}
 
 apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 sourceCompatibility = 1.8
+
+ext.junitVintageVersion  = '4.12.0'
+ext.junitPlatformVersion = '1.0.0'
+ext.junitJupiterVersion  = '5.0.0'
 
 repositories {
     mavenCentral()
 }
 
+compileTestJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    options.compilerArgs += '-parameters'
+}
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    compile 'com.google.code.gson:gson:2.8.2'
+    //testCompile group: 'junit', name: 'junit', version: '5.02'
+    testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+    testCompile("org.junit.platform:junit-platform-runner:${junitPlatformVersion}")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+    compile("com.google.code.gson:gson:2.8.2")
 }

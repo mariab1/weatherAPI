@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 
 public class WeatherRequestTest {
     @Test
-    public void apiIsAccessible() throws IOException {
+    public void testIfapiIsAccessible() throws IOException {
         WeatherRequest wr = new WeatherRequest("Tallinn,EE");
         String requestUrl = wr.getRequestUrl();
         URL obj = new URL(requestUrl);
@@ -19,7 +19,7 @@ public class WeatherRequestTest {
     }
 
     @Test
-    public void isValidRequestType() throws Exception {
+    public void testIfIsValidRequestType() throws Exception {
         WeatherRequest wr = new WeatherRequest("Tallinn,EE");
         assertTrue(wr.isValidRequestType(wr.getRequestType()));
 

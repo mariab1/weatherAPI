@@ -1,31 +1,30 @@
+import Services.Entities.DayWeatherForecast;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class OpenWeatherMap {
     private String city = "";
     private int days = 1;
 
-    public List<WeatherForecast> dailyForecastByCity(String city, int days) throws IOException {
+    public List<DayWeatherForecast> dailyForecastByCity(String city, int days) throws IOException {
         WeatherRequest wr = new WeatherRequest(city);
         wr.setRequestType("forecast");
         JsonObject jsonObject = wr.send();
 
         int i = 1;
-        List<WeatherForecast> forecasts = new ArrayList<WeatherForecast>();
+        List<DayWeatherForecast> forecasts = new ArrayList<>();
         for (JsonElement obj : jsonObject.getAsJsonArray("list")) {
             JsonObject currentForecast = obj.getAsJsonObject();
             if (i > days) {
                 break;
             }
             //System.out.println(obj.toString());
-            forecasts.add(new WeatherForecast(
-                currentForecast.get("dt").getAsInt(),
+            forecasts.add(new DayWeatherForecast(
+                //currentForecast.get("dt").(),
+                    new Date(),
                 currentForecast.get("main").getAsJsonObject().get("temp_min").getAsFloat(),
                 currentForecast.get("main").getAsJsonObject().get("temp_max").getAsFloat()
             ));
