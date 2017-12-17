@@ -14,13 +14,4 @@ public class WeatherForecastRequest {
         this.unitSystem = unitSystem;
         this.countryCode = countryCode;
     }
-
-    @Override
-    public String toString() {
-        return "WeatherForecastRequest{" +
-                "cityName='" + cityName + '\'' +
-                ", unitSystem=" + unitSystem +
-                ", countryCode=" + countryCode +
-                '}';
-    }
 }

@@ -13,11 +13,4 @@ public class ThreeDayWeatherReport extends WeatherReport {
         super(cityName, cityCoordinates, units);
         this.dayForecasts = dayForecasts;
     }
-
-    @Override
-    public String toString() {
-        return "ThreeDayWeatherReport{" +
-                "dayForecasts=" + dayForecasts +
-                '}';
-    }
 }
