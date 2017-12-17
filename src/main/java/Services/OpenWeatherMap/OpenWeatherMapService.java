@@ -1,7 +1,7 @@
 package Services.OpenWeatherMap;
 
 
-import Exceptions.WeatherForecastNotFoundException;
+import Exceptions.OpenWeatherMapAppIdNotSetException;
 import Services.Contracts.WeatherServiceContract;
 import Services.Entities.Coordinates;
 import Services.Entities.DayWeatherForecast;
@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class OpenWeatherMapService implements WeatherServiceContract {
-    public final String serviceUrl = "http://api.openweathermap.org/data/2.5/";
+    private final String serviceUrl = "http://api.openweathermap.org/data/2.5/";
 
     @Override
-    public CurrentWeatherReport getCurrentWeather(WeatherForecastRequest request) throws WeatherForecastNotFoundException, IOException {
+    public CurrentWeatherReport getCurrentWeather(WeatherForecastRequest request) throws OpenWeatherMapAppIdNotSetException, IOException {
         HttpRequest httpRequest = new HttpRequest();
-        String requestUrl = this.serviceUrl + "weather?q=" + request.cityName + "," + request.countryCode + "&appid=" + this.getAppId() + "&units=" + request.unitSystem;
+        String requestUrl = this.getCurrentWeatherRequestUrl(request);
         String response = httpRequest.makeGetRequest(requestUrl);
         JsonObject result = new JsonParser().parse(response).getAsJsonObject();
 
@@ -44,9 +44,9 @@ public class OpenWeatherMapService implements WeatherServiceContract {
     }
 
     @Override
-    public ThreeDayWeatherReport getThreeDayWeatherForecast(WeatherForecastRequest request) throws WeatherForecastNotFoundException, IOException {
+    public ThreeDayWeatherReport getThreeDayWeatherForecast(WeatherForecastRequest request) throws OpenWeatherMapAppIdNotSetException, IOException {
         URL obj = null;
-        String requestURL = "http://api.openweathermap.org/data/2.5/forecast?q=" + request.cityName + "," + request.countryCode + "&appid=46338a507923d7509aa9dfa643d7040b&units=metric";
+        String requestURL = this.getForecastRequestUrl(request);
         try {
             obj = new URL(requestURL);
         } catch (MalformedURLException e) {
@@ -64,7 +64,6 @@ public class OpenWeatherMapService implements WeatherServiceContract {
 
         JsonObject result = new JsonParser().parse(response.toString()).getAsJsonObject();
 
-
         int i = 1;
         ArrayList<DayWeatherForecast> forecasts = new ArrayList<>();
         for (JsonElement elem : result.getAsJsonArray("list")) {
@@ -73,27 +72,45 @@ public class OpenWeatherMapService implements WeatherServiceContract {
                 break;
             }
             forecasts.add(new DayWeatherForecast(
-                    // x1000 kuna API tagastab UNIX timestampi, aga
-                    // java Date klass ootab millisekundeid.
-                    new Date(currentForecast.get("dt").getAsLong() * 1000),
-                    currentForecast.get("main").getAsJsonObject().get("temp_min").getAsFloat(),
-                    currentForecast.get("main").getAsJsonObject().get("temp_max").getAsFloat()
+                // x1000 kuna API tagastab UNIX timestampi, aga
+                // java Date klass ootab millisekundeid.
+                new Date(currentForecast.get("dt").getAsLong() * 1000),
+                currentForecast.get("main").getAsJsonObject().get("temp_min").getAsFloat(),
+                currentForecast.get("main").getAsJsonObject().get("temp_max").getAsFloat()
             ));
             i++;
         }
 
         return new ThreeDayWeatherReport(
-                result.getAsJsonObject("city").get("name").getAsString(),
-                new Coordinates(
-                        result.getAsJsonObject("city").getAsJsonObject("coord").get("lon").getAsFloat(),
-                        result.getAsJsonObject("city").getAsJsonObject("coord").get("lat").getAsFloat()
-                ),
-                request.unitSystem,
-                forecasts
+            result.getAsJsonObject("city").get("name").getAsString(),
+            new Coordinates(
+                    result.getAsJsonObject("city").getAsJsonObject("coord").get("lon").getAsFloat(),
+                    result.getAsJsonObject("city").getAsJsonObject("coord").get("lat").getAsFloat()
+            ),
+            request.unitSystem,
+            forecasts
         );
     }
 
-    public String getAppId() {
-        return "46338a507923d7509aa9dfa643d7040b";
+    private String getForecastRequestUrl(WeatherForecastRequest request) throws OpenWeatherMapAppIdNotSetException {
+        return this.serviceUrl + "forecast?q=" + request.cityName + "," +
+                request.countryCode + "&appid=" + this.getAppId() + "&units=" + request.unitSystem;
+    }
+
+    private String getCurrentWeatherRequestUrl(WeatherForecastRequest request) throws OpenWeatherMapAppIdNotSetException {
+        return this.serviceUrl + "weather?q=" + request.cityName + "," +
+                request.countryCode + "&appid=" + this.getAppId() + "&units=" + request.unitSystem;
+    }
+
+    public String getAppId() throws OpenWeatherMapAppIdNotSetException {
+        String appId = this.getEnvironmentVariable("owm_app_id");
+        if (appId == null) {
+            throw new OpenWeatherMapAppIdNotSetException("OWM APP ID-d ei leitud süsteemi muutujate hulgast");
+        }
+        return appId;
+    }
+
+    public String getEnvironmentVariable(String name) {
+        return System.getenv(name);
     }
 }

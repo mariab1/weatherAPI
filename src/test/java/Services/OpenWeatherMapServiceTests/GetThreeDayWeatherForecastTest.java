@@ -1,6 +1,6 @@
 package Services.OpenWeatherMapServiceTests;
 
-import Exceptions.WeatherForecastNotFoundException;
+import Exceptions.OpenWeatherMapAppIdNotSetException;
 import Services.Entities.CountryCode;
 import Services.Entities.DayWeatherForecast;
 import Services.Entities.Reports.ThreeDayWeatherReport;
@@ -19,7 +19,7 @@ public class GetThreeDayWeatherForecastTest extends WeatherTest {
     private final Unit testUnitSystem = Unit.metric;
 
     @Test
-    public void testIfResponseCityEqualsRequestCity() throws IOException, WeatherForecastNotFoundException {
+    public void testIfResponseCityEqualsRequestCity() throws IOException, OpenWeatherMapAppIdNotSetException {
         // [given]
         OpenWeatherMapService service = new OpenWeatherMapService();
         WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
@@ -42,7 +42,7 @@ public class GetThreeDayWeatherForecastTest extends WeatherTest {
 
 
     @Test
-    public void testIfForecastReturnsWeatherForSpecifiedNrOfDays() throws IOException, WeatherForecastNotFoundException {
+    public void testIfForecastReturnsWeatherForSpecifiedNrOfDays() throws IOException, OpenWeatherMapAppIdNotSetException {
         // [given]
         int nrOfDaysRequested = 3;
         OpenWeatherMapService service = new OpenWeatherMapService();
@@ -60,6 +60,7 @@ public class GetThreeDayWeatherForecastTest extends WeatherTest {
         WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
         // [when]
         ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
+        // [then]
         for (DayWeatherForecast dayForecast : report.dayForecasts) {
             this.validateTemperature(dayForecast.minTemperature, report.unitSystem);
         }

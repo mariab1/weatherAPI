@@ -23,7 +23,7 @@ public class HttpRequest {
         return response.toString();
     }
 
-    public HttpURLConnection makeHttpUrlConnection(String url) throws IOException{
+    public HttpURLConnection makeHttpUrlConnection(String url) throws IOException {
         URL obj = null;
         try {
             obj = new URL(url);

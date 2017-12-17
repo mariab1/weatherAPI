@@ -1,12 +1,13 @@
 package Services.OpenWeatherMapServiceTests;
 
-import Exceptions.WeatherForecastNotFoundException;
+import Exceptions.OpenWeatherMapAppIdNotSetException;
 import Services.Entities.CountryCode;
 import Services.Entities.Requests.WeatherForecastRequest;
 import Services.Entities.Unit;
 import Services.OpenWeatherMap.OpenWeatherMapService;
 import Services.Entities.Reports.CurrentWeatherReport;
-import org.junit.Test;
+
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 
@@ -14,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 public class GetCurrentWeatherTest extends WeatherTest {
     @Test
-    public void testIfResponseCityEqualsRequestCity() throws IOException, WeatherForecastNotFoundException {
+    public void testIfResponseCityEqualsRequestCity() throws IOException, OpenWeatherMapAppIdNotSetException {
         // [given]
         OpenWeatherMapService service = new OpenWeatherMapService();
         WeatherForecastRequest request = new WeatherForecastRequest("Tallinn", CountryCode.EE, Unit.metric);
