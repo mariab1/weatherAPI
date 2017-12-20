@@ -1,49 +1,47 @@
 package Services.OpenWeatherMapServiceTests;
 
 import Exceptions.OpenWeatherMapAppIdNotSetException;
-import Services.Entities.CountryCode;
-import Services.Entities.Requests.WeatherForecastRequest;
+import Services.Entities.Coordinates;
 import Services.Entities.Unit;
-import Services.OpenWeatherMap.OpenWeatherMapService;
 import Services.Entities.Reports.CurrentWeatherReport;
-
 import org.junit.jupiter.api.*;
-
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GetCurrentWeatherTest extends WeatherTest {
+    private static CurrentWeatherReport report;
+
+    @BeforeAll
+    public static void setUpClass() throws IOException, OpenWeatherMapAppIdNotSetException {
+        WeatherTest.setUpClass();
+        if (useMocking) {
+            when(service.getCurrentWeather(request))
+                .thenReturn(
+                    new CurrentWeatherReport(
+                        "Tallinn",
+                        new Coordinates(123, 31),
+                        Unit.metric,
+                        6
+                    )
+                );
+        }
+        report = service.getCurrentWeather(request);
+    }
+
     @Test
-    public void testIfResponseCityEqualsRequestCity() throws IOException, OpenWeatherMapAppIdNotSetException {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest("Tallinn", CountryCode.EE, Unit.metric);
-        // [when]
-        CurrentWeatherReport report = service.getCurrentWeather(request);
-        // [then]
+    public void testIfResponseCityEqualsRequestCity() throws IOException {
         assertEquals(report.cityName, report.cityName);
     }
 
     @Test
     public void testIfWeatherResponseCityCoordinatesAreValid() throws Exception {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest("Tallinn", CountryCode.EE, Unit.metric);
-        // [when]
-        CurrentWeatherReport report = service.getCurrentWeather(request);
-        // [then]
         this.validateCoordinates(report.cityCoordinates);
     }
 
     @Test
     public void testIfWeatherResponseCurrentTemperatureIsValid() throws Exception {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest("Tallinn", CountryCode.EE, Unit.metric);
-        // [when]
-        CurrentWeatherReport report = service.getCurrentWeather(request);
-        // [then]
         this.validateTemperature(report.currentTemperature, request.unitSystem);
     }
 }

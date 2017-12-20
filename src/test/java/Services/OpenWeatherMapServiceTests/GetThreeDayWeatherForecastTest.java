@@ -1,66 +1,63 @@
 package Services.OpenWeatherMapServiceTests;
 
 import Exceptions.OpenWeatherMapAppIdNotSetException;
-import Services.Entities.CountryCode;
+import Services.Entities.Coordinates;
 import Services.Entities.DayWeatherForecast;
 import Services.Entities.Reports.ThreeDayWeatherReport;
-import Services.Entities.Requests.WeatherForecastRequest;
 import Services.Entities.Unit;
-import Services.OpenWeatherMap.OpenWeatherMapService;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 public class GetThreeDayWeatherForecastTest extends WeatherTest {
-    private final String testCity = "Tallinn";
-    private final CountryCode testCountryCode = CountryCode.EE;
-    private final Unit testUnitSystem = Unit.metric;
+    private static ThreeDayWeatherReport report;
+
+    @BeforeAll
+    public static void setUpClass() throws IOException, OpenWeatherMapAppIdNotSetException {
+        WeatherTest.setUpClass();
+        if (useMocking) {
+            ArrayList<DayWeatherForecast> dayForecasts = new ArrayList<>();
+            dayForecasts.add(new DayWeatherForecast(new Date(), -1, 4));
+            dayForecasts.add(new DayWeatherForecast(new Date(), 0, 3));
+            dayForecasts.add(new DayWeatherForecast(new Date(), -2, 1));
+
+            when(service.getThreeDayWeatherForecast(request))
+                .thenReturn(
+                    new ThreeDayWeatherReport(
+                        "Tallinn",
+                        new Coordinates(123.24, 31.43),
+                        Unit.metric,
+                        dayForecasts
+                    )
+                );
+        }
+        report = service.getThreeDayWeatherForecast(request);
+    }
 
     @Test
-    public void testIfResponseCityEqualsRequestCity() throws IOException, OpenWeatherMapAppIdNotSetException {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
-        // [when]
-        ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
-        // [then]
+    public void testIfResponseCityEqualsRequestCity() {
         assertEquals(report.cityName, request.cityName);
     }
 
     @Test
     public void testIfWeatherRepoResponseCityCoordinatesAreaValid() throws Exception {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
-        // [when]
-        ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
-        // [then]
         this.validateCoordinates(report.cityCoordinates);
     }
 
 
     @Test
-    public void testIfForecastReturnsWeatherForSpecifiedNrOfDays() throws IOException, OpenWeatherMapAppIdNotSetException {
-        // [given]
+    public void testIfForecastReturnsWeatherForSpecifiedNrOfDays() {
         int nrOfDaysRequested = 3;
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
-        // [when]
-        ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
-        // [then]
         assertEquals(nrOfDaysRequested, report.dayForecasts.size());
     }
 
     @Test
     public void testIfForecastResponseDailyLowsAreValid() throws Exception {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
-        // [when]
-        ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
-        // [then]
         for (DayWeatherForecast dayForecast : report.dayForecasts) {
             this.validateTemperature(dayForecast.minTemperature, report.unitSystem);
         }
@@ -68,12 +65,6 @@ public class GetThreeDayWeatherForecastTest extends WeatherTest {
 
     @Test
     public void testIfForecastResponseDailyHighsAreValid() throws Exception {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
-        // [when]
-        ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
-        // [then]
         for (DayWeatherForecast dayForecast : report.dayForecasts) {
             this.validateTemperature(dayForecast.maxTemperature, report.unitSystem);
         }
@@ -81,12 +72,6 @@ public class GetThreeDayWeatherForecastTest extends WeatherTest {
 
     @Test
     public void testIfForecastResponseDatesAreValid() throws Exception {
-        // [given]
-        OpenWeatherMapService service = new OpenWeatherMapService();
-        WeatherForecastRequest request = new WeatherForecastRequest(testCity, testCountryCode, testUnitSystem);
-        // [when]
-        ThreeDayWeatherReport report = service.getThreeDayWeatherForecast(request);
-        // [then]
         for (DayWeatherForecast dayForecast : report.dayForecasts) {
             this.validateDate(dayForecast.date);
         }

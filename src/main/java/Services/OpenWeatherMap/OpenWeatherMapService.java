@@ -33,13 +33,13 @@ public class OpenWeatherMapService implements WeatherServiceContract {
         JsonObject result = new JsonParser().parse(response).getAsJsonObject();
 
         return new CurrentWeatherReport(
-                result.get("name").getAsString(),
-                new Coordinates(
-                    result.getAsJsonObject("coord").get("lon").getAsFloat(),
-                    result.getAsJsonObject("coord").get("lat").getAsFloat()
-                ),
-                request.unitSystem,
-                result.getAsJsonObject("main").get("temp").getAsFloat()
+            result.get("name").getAsString(),
+            new Coordinates(
+                result.getAsJsonObject("coord").get("lon").getAsFloat(),
+                result.getAsJsonObject("coord").get("lat").getAsFloat()
+            ),
+            request.unitSystem,
+            result.getAsJsonObject("main").get("temp").getAsFloat()
         );
     }
 

@@ -1,15 +1,35 @@
 package Services.OpenWeatherMapServiceTests;
 
 import Exceptions.InvalidDateException;
+import Exceptions.OpenWeatherMapAppIdNotSetException;
 import Services.Entities.Coordinates;
+import Services.Entities.CountryCode;
+import Services.Entities.Requests.WeatherForecastRequest;
 import Services.Entities.Unit;
+import Services.OpenWeatherMap.OpenWeatherMapService;
+import org.junit.jupiter.api.BeforeAll;
+import org.mockito.Mockito;
 
-import java.text.DateFormat;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Year;
 import java.util.Date;
 
 public class WeatherTest {
+    protected static final boolean useMocking = true;
+    protected static OpenWeatherMapService service;
+    protected static WeatherForecastRequest request;
+
+    @BeforeAll
+    public static void setUpClass() throws IOException, OpenWeatherMapAppIdNotSetException {
+        request = new WeatherForecastRequest("Tallinn", CountryCode.EE, Unit.metric);
+        if (useMocking) {
+            service = Mockito.mock(OpenWeatherMapService.class);
+            return;
+        }
+        service = new OpenWeatherMapService();
+    }
+
     public void validateCoordinates(Coordinates coordinates) throws Exception {
         double latMax = 90;
         double latMin = -90;
